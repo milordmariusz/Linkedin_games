@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queens Puzzle</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Queens Puzzle!</h1>
+        <p>Upload an image to process:</p>
+        <input type="file" id="file-input" accept="image/jpeg, image/png">
+        <button id="upload-button">Upload and Process</button>
+        <div id="loader" style="display: none;">
+            <img src="/static/loader.gif" alt="Loading...">
+        </div>
+        <div id="result">
+            <h2>Processed Image:</h2>
+            <img id="output-image" src="" alt="">
+        </div>
+    </div>
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const uploadButton = document.getElementById('upload-button');
+        const loader = document.getElementById('loader');
+        const result = document.getElementById('result');
+        const outputImage = document.getElementById('output-image');
+
+        uploadButton.addEventListener('click', async () => {
+            if (!fileInput.files[0]) {
+                alert("Please select an image first!");
+                return;
+            }
+
+            loader.style.display = "block";
+            result.style.display = "none";
+
+            const formData = new FormData();
+            formData.append("image", fileInput.files[0]);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                loader.style.display = "none";
+
+                if (data.success) {
+                    result.style.display = "block";
+                    outputImage.src = data.image_url;
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (error) {
+                loader.style.display = "none";
+                alert("An unexpected error occurred: " + error.message);
+            }
+        });
+    </script>
+</body>
+</html>
